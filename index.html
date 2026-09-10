@@ -9,7 +9,8 @@
   <meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)" />
   <meta name="theme-color" content="#0f0f0e" media="(prefers-color-scheme: dark)" />
   <title>Bloom — pregnancy tracker</title>
-
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🦢</text></svg>">
+  
   <!-- PWA manifest inline -->
   <script>
     const manifestData = {
@@ -585,22 +586,25 @@
           <button class="mood-btn" data-mood="great" onclick="toggleMood(this)" title="Great">😊</button>
           <button class="mood-btn" data-mood="ok" onclick="toggleMood(this)" title="Ok">😐</button>
           <button class="mood-btn" data-mood="nauseous" onclick="toggleMood(this)" title="Nauseous">🤢</button>
-          <button class="mood-btn" data-mood="tired" onclick="toggleMood(this)" title="Tired">😴</button>
           <button class="mood-btn" data-mood="pain" onclick="toggleMood(this)" title="Pain">😣</button>
+          <button class="mood-btn" data-mood="tired" onclick="toggleMood(this)" title="Tired">😴</button>
         </div>
       </div>
 
       <div class="card">
         <div class="card-label">Tags</div>
         <div class="tag-grid">
+          <span class="tag" data-tag="good" onclick="toggleTag(this)">✨ felt good</span>
           <span class="tag" data-tag="food" onclick="toggleTag(this)">🍽 ate</span>
+          <span class="tag" data-tag="hungry" onclick="toggleTag(this)">🫙 hungry</span>
           <span class="tag" data-tag="drink" onclick="toggleTag(this)">💧 drank</span>
           <span class="tag" data-tag="nausea" onclick="toggleTag(this)">🤢 nausea</span>
+          <span class="tag" data-tag="lightheaded" onclick="toggleTag(this)">😵 lightheaded</span>
           <span class="tag" data-tag="bathroom" onclick="toggleTag(this)">🚽 bathroom</span>
           <span class="tag" data-tag="sleep" onclick="toggleTag(this)">😴 sleep</span>
-          <span class="tag" data-tag="good" onclick="toggleTag(this)">✨ felt good</span>
           <span class="tag" data-tag="energy" onclick="toggleTag(this)">⚡ energy</span>
           <span class="tag" data-tag="pain" onclick="toggleTag(this)">⚠️ cramp/pain</span>
+          <span class="tag" data-tag="gas" onclick="toggleTag(this)">💨 gas</span>
         </div>
       </div>
 
