@@ -1,0 +1,979 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+  <meta name="apple-mobile-web-app-title" content="Bloom" />
+  <meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)" />
+  <meta name="theme-color" content="#0f0f0e" media="(prefers-color-scheme: dark)" />
+  <title>Bloom — pregnancy tracker</title>
+
+  <!-- PWA manifest inline -->
+  <script>
+    const manifestData = {
+      name: "Bloom — Pregnancy Tracker",
+      short_name: "Bloom",
+      start_url: ".",
+      display: "standalone",
+      background_color: "#ffffff",
+      theme_color: "#ffffff",
+      icons: [{ src: "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🌸</text></svg>", sizes: "any", type: "image/svg+xml" }]
+    };
+    const blob = new Blob([JSON.stringify(manifestData)], { type: "application/json" });
+    const manifestURL = URL.createObjectURL(blob);
+    document.write(`<link rel="manifest" href="${manifestURL}">`);
+  </script>
+
+  <style>
+    :root {
+      --bg: #fafaf8;
+      --surface: #ffffff;
+      --surface2: #f4f3ef;
+      --border: rgba(0,0,0,0.09);
+      --border-strong: rgba(0,0,0,0.15);
+      --text: #0b0b0a;
+      --text-secondary: #52514e;
+      --text-muted: #898781;
+      --accent: #2a78d6;
+      --accent-bg: #e6f1fb;
+      --accent-text: #185fa5;
+      --success-bg: #eaf3de;
+      --success-text: #3b6d11;
+      --warning-bg: #faeeda;
+      --warning-text: #854f0b;
+      --danger-bg: #fcebeb;
+      --danger-text: #a32d2d;
+      --pro-bg: #eeedfe;
+      --pro-text: #534ab7;
+      --radius: 8px;
+      --safe-bottom: env(safe-area-inset-bottom, 0px);
+      --safe-top: env(safe-area-inset-top, 0px);
+    }
+
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --bg: #0f0f0e;
+        --surface: #1a1a19;
+        --surface2: #242422;
+        --border: rgba(255,255,255,0.09);
+        --border-strong: rgba(255,255,255,0.16);
+        --text: #f0efec;
+        --text-secondary: #c3c2b7;
+        --text-muted: #898781;
+        --accent: #3987e5;
+        --accent-bg: #0c447c22;
+        --accent-text: #85b7eb;
+        --success-bg: #27500a22;
+        --success-text: #97c459;
+        --warning-bg: #633806 22;
+        --warning-text: #fac775;
+        --danger-bg: #791f1f22;
+        --danger-text: #f09595;
+        --pro-bg: #3c348922;
+        --pro-text: #afa9ec;
+      }
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+
+    html, body {
+      height: 100%;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      font-size: 16px;
+      line-height: 1.5;
+      overscroll-behavior: none;
+    }
+
+    .app {
+      max-width: 480px;
+      margin: 0 auto;
+      min-height: 100dvh;
+      display: flex;
+      flex-direction: column;
+      background: var(--bg);
+    }
+
+    /* Header */
+    .header {
+      padding: calc(16px + var(--safe-top)) 20px 0;
+      background: var(--bg);
+      position: sticky;
+      top: 0;
+      z-index: 10;
+    }
+
+    .header-top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 16px;
+    }
+
+    .app-name {
+      font-size: 22px;
+      font-weight: 600;
+      letter-spacing: -0.5px;
+      color: var(--text);
+    }
+
+    .week-badge {
+      font-size: 12px;
+      padding: 4px 10px;
+      border-radius: 20px;
+      background: var(--accent-bg);
+      color: var(--accent-text);
+      font-weight: 500;
+    }
+
+    /* Tabs */
+    .tabs {
+      display: flex;
+      border-bottom: 0.5px solid var(--border);
+    }
+
+    .tab {
+      flex: 1;
+      padding: 10px 4px;
+      font-size: 14px;
+      background: none;
+      border: none;
+      border-bottom: 2px solid transparent;
+      cursor: pointer;
+      color: var(--text-muted);
+      font-family: inherit;
+      transition: color 0.15s;
+      margin-bottom: -0.5px;
+    }
+
+    .tab.active {
+      color: var(--accent);
+      border-bottom-color: var(--accent);
+      font-weight: 500;
+    }
+
+    /* Main content */
+    .content {
+      flex: 1;
+      overflow-y: auto;
+      padding: 20px;
+      padding-bottom: calc(20px + var(--safe-bottom));
+    }
+
+    /* Cards */
+    .card {
+      background: var(--surface);
+      border: 0.5px solid var(--border);
+      border-radius: 12px;
+      padding: 16px;
+      margin-bottom: 12px;
+    }
+
+    .card-label {
+      font-size: 11px;
+      color: var(--text-muted);
+      font-weight: 500;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      margin-bottom: 8px;
+    }
+
+    /* Form elements */
+    .form-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 12px;
+    }
+
+    .form-label {
+      font-size: 13px;
+      color: var(--text-secondary);
+      min-width: 40px;
+    }
+
+    input[type="date"],
+    input[type="time"] {
+      flex: 1;
+      padding: 8px 10px;
+      border: 0.5px solid var(--border-strong);
+      border-radius: var(--radius);
+      background: var(--surface2);
+      color: var(--text);
+      font-size: 14px;
+      font-family: inherit;
+      outline: none;
+    }
+
+    input[type="date"]:focus,
+    input[type="time"]:focus {
+      border-color: var(--accent);
+    }
+
+    textarea {
+      width: 100%;
+      padding: 10px 12px;
+      border: 0.5px solid var(--border-strong);
+      border-radius: var(--radius);
+      background: var(--surface2);
+      color: var(--text);
+      font-size: 14px;
+      font-family: inherit;
+      line-height: 1.5;
+      resize: none;
+      min-height: 80px;
+      outline: none;
+    }
+
+    textarea:focus { border-color: var(--accent); }
+    textarea::placeholder { color: var(--text-muted); }
+
+    /* Mood */
+    .mood-row {
+      display: flex;
+      gap: 6px;
+    }
+
+    .mood-btn {
+      flex: 1;
+      padding: 8px 4px;
+      font-size: 20px;
+      border: 0.5px solid var(--border);
+      border-radius: var(--radius);
+      background: var(--surface2);
+      cursor: pointer;
+      text-align: center;
+      transition: all 0.15s;
+      line-height: 1;
+    }
+
+    .mood-btn.active {
+      border-color: var(--accent);
+      background: var(--accent-bg);
+    }
+
+    /* Tags */
+    .tag-grid {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+    }
+
+    .tag {
+      font-size: 13px;
+      padding: 5px 12px;
+      border-radius: 20px;
+      border: 0.5px solid var(--border);
+      cursor: pointer;
+      background: var(--surface2);
+      color: var(--text-secondary);
+      transition: all 0.15s;
+      user-select: none;
+    }
+
+    .tag.active {
+      background: var(--accent-bg);
+      border-color: var(--accent);
+      color: var(--accent-text);
+    }
+
+    /* Save button */
+    .btn-save {
+      width: 100%;
+      padding: 12px;
+      background: var(--accent);
+      color: #fff;
+      border: none;
+      border-radius: var(--radius);
+      font-size: 15px;
+      font-weight: 500;
+      font-family: inherit;
+      cursor: pointer;
+      margin-top: 4px;
+      transition: opacity 0.15s;
+    }
+
+    .btn-save:active { opacity: 0.8; }
+    .btn-save:disabled { opacity: 0.5; cursor: default; }
+
+    .error-msg {
+      font-size: 12px;
+      color: var(--danger-text);
+      margin-bottom: 8px;
+    }
+
+    /* Entries */
+    .day-label {
+      font-size: 12px;
+      color: var(--text-muted);
+      font-weight: 600;
+      padding: 4px 0 8px;
+      letter-spacing: 0.03em;
+    }
+
+    .entry {
+      background: var(--surface);
+      border: 0.5px solid var(--border);
+      border-radius: 10px;
+      padding: 12px 14px;
+      margin-bottom: 6px;
+      display: flex;
+      gap: 10px;
+      align-items: flex-start;
+    }
+
+    .entry-time {
+      font-size: 12px;
+      color: var(--text-muted);
+      min-width: 44px;
+      padding-top: 2px;
+      flex-shrink: 0;
+    }
+
+    .entry-body { flex: 1; min-width: 0; }
+
+    .entry-text {
+      font-size: 14px;
+      color: var(--text);
+      line-height: 1.45;
+    }
+
+    .entry-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 4px;
+      margin-top: 5px;
+    }
+
+    .etag {
+      font-size: 11px;
+      padding: 2px 8px;
+      border-radius: 20px;
+    }
+
+    .etag-food { background: var(--success-bg); color: var(--success-text); }
+    .etag-drink { background: var(--accent-bg); color: var(--accent-text); }
+    .etag-nausea { background: var(--warning-bg); color: var(--warning-text); }
+    .etag-bathroom { background: var(--surface2); color: var(--text-muted); border: 0.5px solid var(--border); }
+    .etag-sleep { background: var(--pro-bg); color: var(--pro-text); }
+    .etag-good { background: var(--success-bg); color: var(--success-text); }
+    .etag-energy { background: var(--accent-bg); color: var(--accent-text); }
+    .etag-pain { background: var(--danger-bg); color: var(--danger-text); }
+
+    .entry-delete {
+      font-size: 14px;
+      color: var(--text-muted);
+      background: none;
+      border: none;
+      cursor: pointer;
+      padding: 0 0 0 4px;
+      flex-shrink: 0;
+      opacity: 0.4;
+      line-height: 1;
+    }
+
+    .entry:hover .entry-delete { opacity: 0.7; }
+    .entry-delete:hover { color: var(--danger-text); opacity: 1; }
+
+    /* Empty state */
+    .empty {
+      text-align: center;
+      color: var(--text-muted);
+      font-size: 14px;
+      padding: 3rem 1rem;
+    }
+
+    .empty-icon { font-size: 36px; margin-bottom: 12px; }
+
+    /* Insights */
+    .insights-card {
+      background: var(--surface);
+      border: 0.5px solid var(--border);
+      border-radius: 12px;
+      padding: 16px;
+      margin-bottom: 12px;
+    }
+
+    .insights-header {
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--text-secondary);
+      margin-bottom: 10px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .insights-text {
+      font-size: 14px;
+      color: var(--text);
+      line-height: 1.7;
+      white-space: pre-wrap;
+    }
+
+    .insights-muted {
+      font-size: 13px;
+      color: var(--text-muted);
+      line-height: 1.6;
+    }
+
+    .btn-outline {
+      width: 100%;
+      padding: 11px;
+      background: none;
+      color: var(--accent);
+      border: 0.5px solid var(--accent);
+      border-radius: var(--radius);
+      font-size: 14px;
+      font-weight: 500;
+      font-family: inherit;
+      cursor: pointer;
+      transition: background 0.15s;
+      margin-bottom: 8px;
+    }
+
+    .btn-outline:hover { background: var(--accent-bg); }
+    .btn-outline:disabled { opacity: 0.5; cursor: default; }
+
+    .hint-text {
+      font-size: 12px;
+      color: var(--text-muted);
+      text-align: center;
+    }
+
+    /* Stats row */
+    .stats-row {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 8px;
+      margin-bottom: 12px;
+    }
+
+    .stat-card {
+      background: var(--surface);
+      border: 0.5px solid var(--border);
+      border-radius: 10px;
+      padding: 12px;
+      text-align: center;
+    }
+
+    .stat-num {
+      font-size: 22px;
+      font-weight: 600;
+      color: var(--text);
+      line-height: 1;
+      margin-bottom: 4px;
+    }
+
+    .stat-lbl {
+      font-size: 11px;
+      color: var(--text-muted);
+    }
+
+    /* API key note */
+    .api-note {
+      background: var(--warning-bg);
+      border: 0.5px solid var(--border);
+      border-radius: var(--radius);
+      padding: 12px 14px;
+      font-size: 13px;
+      color: var(--warning-text);
+      margin-bottom: 12px;
+      line-height: 1.5;
+    }
+
+    .api-note strong { font-weight: 600; }
+
+    .api-input-row {
+      display: flex;
+      gap: 8px;
+      margin-top: 8px;
+    }
+
+    .api-input-row input {
+      flex: 1;
+      padding: 7px 10px;
+      border: 0.5px solid var(--border-strong);
+      border-radius: var(--radius);
+      background: var(--surface);
+      color: var(--text);
+      font-size: 13px;
+      font-family: inherit;
+      outline: none;
+    }
+
+    .api-input-row button {
+      padding: 7px 14px;
+      background: var(--accent);
+      color: #fff;
+      border: none;
+      border-radius: var(--radius);
+      font-size: 13px;
+      font-family: inherit;
+      cursor: pointer;
+    }
+
+    /* Export */
+    .btn-ghost {
+      width: 100%;
+      padding: 10px;
+      background: none;
+      color: var(--text-secondary);
+      border: 0.5px solid var(--border);
+      border-radius: var(--radius);
+      font-size: 13px;
+      font-family: inherit;
+      cursor: pointer;
+      margin-bottom: 8px;
+    }
+
+    .btn-ghost:hover { background: var(--surface2); }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    .spinner {
+      display: inline-block;
+      width: 14px; height: 14px;
+      border: 2px solid var(--accent-bg);
+      border-top-color: var(--accent);
+      border-radius: 50%;
+      animation: spin 0.7s linear infinite;
+      vertical-align: middle;
+      margin-right: 6px;
+    }
+  </style>
+</head>
+<body>
+<div class="app">
+  <div class="header">
+    <div class="header-top">
+      <div class="app-name">🌸 Bloom</div>
+      <div class="week-badge" id="week-badge">7w 2d</div>
+    </div>
+    <div class="tabs">
+      <button class="tab active" onclick="switchTab('log')">Log</button>
+      <button class="tab" onclick="switchTab('history')">History</button>
+      <button class="tab" onclick="switchTab('insights')">Insights</button>
+      <button class="tab" onclick="switchTab('settings')">Settings</button>
+    </div>
+  </div>
+
+  <div class="content">
+
+    <!-- LOG TAB -->
+    <div id="tab-log">
+      <div class="card">
+        <div class="card-label">When</div>
+        <div class="form-row">
+          <span class="form-label">Date</span>
+          <input type="date" id="entry-date" />
+        </div>
+        <div class="form-row" style="margin-bottom:0">
+          <span class="form-label">Time</span>
+          <input type="time" id="entry-time" />
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-label">How do you feel?</div>
+        <div class="mood-row">
+          <button class="mood-btn" data-mood="great" onclick="toggleMood(this)" title="Great">😊</button>
+          <button class="mood-btn" data-mood="ok" onclick="toggleMood(this)" title="Ok">😐</button>
+          <button class="mood-btn" data-mood="nauseous" onclick="toggleMood(this)" title="Nauseous">🤢</button>
+          <button class="mood-btn" data-mood="tired" onclick="toggleMood(this)" title="Tired">😴</button>
+          <button class="mood-btn" data-mood="pain" onclick="toggleMood(this)" title="Pain">😣</button>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-label">Tags</div>
+        <div class="tag-grid">
+          <span class="tag" data-tag="food" onclick="toggleTag(this)">🍽 ate</span>
+          <span class="tag" data-tag="drink" onclick="toggleTag(this)">💧 drank</span>
+          <span class="tag" data-tag="nausea" onclick="toggleTag(this)">🤢 nausea</span>
+          <span class="tag" data-tag="bathroom" onclick="toggleTag(this)">🚽 bathroom</span>
+          <span class="tag" data-tag="sleep" onclick="toggleTag(this)">😴 sleep</span>
+          <span class="tag" data-tag="good" onclick="toggleTag(this)">✨ felt good</span>
+          <span class="tag" data-tag="energy" onclick="toggleTag(this)">⚡ energy</span>
+          <span class="tag" data-tag="pain" onclick="toggleTag(this)">⚠️ cramp/pain</span>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-label">Note</div>
+        <textarea id="entry-note" placeholder="e.g. ate bone broth, felt great after. drank Nuun, nausea went away around noon…"></textarea>
+        <div id="form-error" class="error-msg" style="display:none;margin-top:6px;"></div>
+      </div>
+
+      <button class="btn-save" onclick="addEntry()">Save entry</button>
+    </div>
+
+    <!-- HISTORY TAB -->
+    <div id="tab-history" style="display:none;">
+      <div class="stats-row" id="stats-row"></div>
+      <div id="entries-list"></div>
+    </div>
+
+    <!-- INSIGHTS TAB -->
+    <div id="tab-insights" style="display:none;">
+      <div class="insights-card">
+        <div class="insights-header">✦ Pattern analysis</div>
+        <div id="insights-content" class="insights-muted">Log a few entries, then tap "Find patterns" to see what's helping and what's not.</div>
+      </div>
+      <button class="btn-outline" onclick="getInsights()" id="insights-btn">Find patterns</button>
+      <div class="hint-text">Analyzes your log to find food triggers, timing patterns, and what makes you feel better</div>
+    </div>
+
+    <!-- SETTINGS TAB -->
+    <div id="tab-settings" style="display:none;">
+      <div class="card">
+        <div class="card-label">Due date</div>
+        <input type="date" id="settings-due" style="width:100%;padding:8px 10px;border:0.5px solid var(--border-strong);border-radius:var(--radius);background:var(--surface2);color:var(--text);font-size:14px;font-family:inherit;outline:none;" />
+        <div style="margin-top:8px;">
+          <button class="btn-save" onclick="saveDueDate()" style="margin-top:0;">Save due date</button>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-label">Anthropic API key</div>
+        <p style="font-size:13px;color:var(--text-secondary);margin-bottom:10px;line-height:1.5;">Required for the Insights feature. Get yours at <a href="https://console.anthropic.com" target="_blank" style="color:var(--accent);">console.anthropic.com</a>. Stored locally in your browser only.</p>
+        <input type="password" id="api-key-input" placeholder="sk-ant-..." style="width:100%;padding:9px 12px;border:0.5px solid var(--border-strong);border-radius:var(--radius);background:var(--surface2);color:var(--text);font-size:14px;font-family:inherit;outline:none;margin-bottom:8px;" />
+        <button class="btn-save" onclick="saveApiKey()" style="margin-top:0;">Save key</button>
+        <div id="key-status" style="font-size:12px;color:var(--text-muted);margin-top:6px;"></div>
+      </div>
+
+      <div class="card">
+        <div class="card-label">Data</div>
+        <button class="btn-ghost" onclick="exportData()">Export as JSON</button>
+        <button class="btn-ghost" onclick="exportCSV()">Export as CSV</button>
+        <button class="btn-ghost" style="color:var(--danger-text);" onclick="clearAllData()">Clear all data</button>
+      </div>
+
+      <div style="font-size:12px;color:var(--text-muted);text-align:center;padding:8px;">
+        Bloom v1.0 — your data stays on your device
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+  const STORAGE_KEY = 'bloom-tracker-v1';
+  const API_KEY_KEY = 'bloom-api-key';
+  const DUE_DATE_KEY = 'bloom-due-date';
+
+  let entries = [];
+
+  function loadAll() {
+    try { entries = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]'); } catch(e) { entries = []; }
+    const apiKey = localStorage.getItem(API_KEY_KEY);
+    if (apiKey) {
+      document.getElementById('api-key-input').value = apiKey;
+      document.getElementById('key-status').textContent = 'Key saved.';
+    }
+    const due = localStorage.getItem(DUE_DATE_KEY);
+    if (due) {
+      document.getElementById('settings-due').value = due;
+      updateWeekBadge(due);
+    } else {
+      // Default: April 21 2027 (from conversation)
+      const defaultDue = '2027-04-21';
+      document.getElementById('settings-due').value = defaultDue;
+      localStorage.setItem(DUE_DATE_KEY, defaultDue);
+      updateWeekBadge(defaultDue);
+    }
+    setDefaultDateTime();
+  }
+
+  function updateWeekBadge(dueDate) {
+    try {
+      const due = new Date(dueDate);
+      const today = new Date();
+      const conception = new Date(due);
+      conception.setDate(due.getDate() - 280);
+      const diffDays = Math.floor((today - conception) / 86400000);
+      const weeks = Math.floor(diffDays / 7);
+      const days = diffDays % 7;
+      document.getElementById('week-badge').textContent = weeks + 'w ' + days + 'd';
+    } catch(e) {}
+  }
+
+  function saveAll() {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(entries));
+  }
+
+  function saveDueDate() {
+    const val = document.getElementById('settings-due').value;
+    if (!val) return;
+    localStorage.setItem(DUE_DATE_KEY, val);
+    updateWeekBadge(val);
+    alert('Due date saved.');
+  }
+
+  function saveApiKey() {
+    const key = document.getElementById('api-key-input').value.trim();
+    if (!key) return;
+    localStorage.setItem(API_KEY_KEY, key);
+    document.getElementById('key-status').textContent = 'Key saved.';
+  }
+
+  function switchTab(name) {
+    ['log','history','insights','settings'].forEach(t => {
+      document.getElementById('tab-' + t).style.display = t === name ? 'block' : 'none';
+    });
+    document.querySelectorAll('.tab').forEach((btn, i) => {
+      const tabs = ['log','history','insights','settings'];
+      btn.classList.toggle('active', tabs[i] === name);
+    });
+    if (name === 'history') renderHistory();
+  }
+
+  function setDefaultDateTime() {
+    const now = new Date();
+    document.getElementById('entry-date').value = now.toISOString().slice(0,10);
+    const hh = String(now.getHours()).padStart(2,'0');
+    const mm = String(now.getMinutes()).padStart(2,'0');
+    document.getElementById('entry-time').value = hh + ':' + mm;
+  }
+
+  function toggleMood(btn) {
+    const wasActive = btn.classList.contains('active');
+    document.querySelectorAll('.mood-btn').forEach(b => b.classList.remove('active'));
+    if (!wasActive) btn.classList.add('active');
+  }
+
+  function toggleTag(el) { el.classList.toggle('active'); }
+
+  function getActiveTags() {
+    return [...document.querySelectorAll('#tab-log .tag.active')].map(t => t.dataset.tag);
+  }
+
+  function addEntry() {
+    const date = document.getElementById('entry-date').value;
+    const time = document.getElementById('entry-time').value;
+    const note = document.getElementById('entry-note').value.trim();
+    const errEl = document.getElementById('form-error');
+
+    if (!note) {
+      errEl.textContent = 'Add a note describing what happened.';
+      errEl.style.display = 'block';
+      return;
+    }
+    errEl.style.display = 'none';
+
+    const tags = getActiveTags();
+    const moodBtn = document.querySelector('#tab-log .mood-btn.active');
+    const mood = moodBtn ? moodBtn.dataset.mood : null;
+    const timestamp = (date && time) ? date + 'T' + time : new Date().toISOString();
+
+    entries.unshift({ id: Date.now(), timestamp, note, tags, mood });
+    saveAll();
+
+    // Reset form
+    document.getElementById('entry-note').value = '';
+    document.querySelectorAll('#tab-log .tag.active').forEach(t => t.classList.remove('active'));
+    document.querySelectorAll('#tab-log .mood-btn.active').forEach(b => b.classList.remove('active'));
+    setDefaultDateTime();
+
+    // Brief flash confirmation
+    const btn = document.querySelector('.btn-save');
+    btn.textContent = 'Saved ✓';
+    setTimeout(() => { btn.textContent = 'Save entry'; }, 1500);
+  }
+
+  function deleteEntry(id) {
+    if (!confirm('Delete this entry?')) return;
+    entries = entries.filter(e => e.id !== id);
+    saveAll();
+    renderHistory();
+  }
+
+  function formatDateTime(iso) {
+    const d = new Date(iso);
+    const today = new Date(); today.setHours(0,0,0,0);
+    const yesterday = new Date(today); yesterday.setDate(today.getDate() - 1);
+    const entryDay = new Date(d); entryDay.setHours(0,0,0,0);
+    let dayLabel;
+    if (entryDay.getTime() === today.getTime()) dayLabel = 'Today';
+    else if (entryDay.getTime() === yesterday.getTime()) dayLabel = 'Yesterday';
+    else dayLabel = d.toLocaleDateString('en-US', { weekday:'short', month:'short', day:'numeric' });
+    const time = d.toLocaleTimeString('en-US', { hour:'numeric', minute:'2-digit' });
+    return { dayLabel, time, dayKey: entryDay.getTime() };
+  }
+
+  const moodEmojis = { great:'😊', ok:'😐', nauseous:'🤢', tired:'😴', pain:'😣' };
+  const tagClasses = { food:'etag-food', drink:'etag-drink', nausea:'etag-nausea', bathroom:'etag-bathroom', sleep:'etag-sleep', good:'etag-good', energy:'etag-energy', pain:'etag-pain' };
+
+  function renderHistory() {
+    const list = document.getElementById('entries-list');
+    const statsRow = document.getElementById('stats-row');
+
+    // Stats
+    const today = new Date(); today.setHours(0,0,0,0);
+    const todayEntries = entries.filter(e => new Date(new Date(e.timestamp).setHours(0,0,0,0)).getTime() === today.getTime());
+    const goodCount = entries.filter(e => e.mood === 'great').length;
+    const nauseaCount = entries.filter(e => e.tags.includes('nausea')).length;
+
+    statsRow.innerHTML = `
+      <div class="stat-card"><div class="stat-num">${entries.length}</div><div class="stat-lbl">total logs</div></div>
+      <div class="stat-card"><div class="stat-num">${todayEntries.length}</div><div class="stat-lbl">today</div></div>
+      <div class="stat-card"><div class="stat-num">${nauseaCount}</div><div class="stat-lbl">nausea logs</div></div>
+    `;
+
+    if (!entries.length) {
+      list.innerHTML = '<div class="empty"><div class="empty-icon">📋</div>No entries yet.<br>Start logging in the Log tab.</div>';
+      return;
+    }
+
+    let html = '';
+    let lastDay = null;
+
+    entries.forEach(e => {
+      const { dayLabel, time, dayKey } = formatDateTime(e.timestamp);
+      if (dayKey !== lastDay) {
+        html += `<div class="day-label">${dayLabel}</div>`;
+        lastDay = dayKey;
+      }
+      const tagsHtml = e.tags.map(t => `<span class="etag ${tagClasses[t] || ''}">${t}</span>`).join('');
+      const mood = e.mood ? `<span style="margin-right:5px;">${moodEmojis[e.mood] || ''}</span>` : '';
+      html += `
+        <div class="entry">
+          <div class="entry-time">${time}</div>
+          <div class="entry-body">
+            <div class="entry-text">${mood}${e.note}</div>
+            ${e.tags.length ? `<div class="entry-tags">${tagsHtml}</div>` : ''}
+          </div>
+          <button class="entry-delete" onclick="deleteEntry(${e.id})" title="Delete">✕</button>
+        </div>`;
+    });
+
+    list.innerHTML = html;
+  }
+
+  async function getInsights() {
+    if (entries.length < 3) {
+      document.getElementById('insights-content').className = 'insights-muted';
+      document.getElementById('insights-content').textContent = 'Log at least 3 entries first so there\'s something to analyze.';
+      return;
+    }
+
+    const apiKey = localStorage.getItem(API_KEY_KEY);
+    if (!apiKey) {
+      document.getElementById('insights-content').className = 'insights-muted';
+      document.getElementById('insights-content').textContent = 'Add your Anthropic API key in Settings to enable insights.';
+      return;
+    }
+
+    const btn = document.getElementById('insights-btn');
+    const el = document.getElementById('insights-content');
+    btn.disabled = true;
+    btn.innerHTML = '<span class="spinner"></span>Analyzing…';
+    el.className = 'insights-muted';
+    el.textContent = 'Looking for patterns in your log…';
+
+    const log = entries.map(e => {
+      const d = new Date(e.timestamp);
+      return `[${d.toLocaleDateString('en-US',{month:'short',day:'numeric'})} ${d.toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit'})}] mood:${e.mood||'?'} tags:[${e.tags.join(',')}] — ${e.note}`;
+    }).join('\n');
+
+    try {
+      const res = await fetch('https://api.anthropic.com/v1/messages', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'x-api-key': apiKey,
+          'anthropic-version': '2023-06-01',
+          'anthropic-dangerous-direct-browser-access': 'true'
+        },
+        body: JSON.stringify({
+          model: 'claude-sonnet-4-6',
+          max_tokens: 1000,
+          system: `You are a compassionate pregnancy wellness assistant analyzing symptom and food logs for a pregnant person (currently first trimester, ~7 weeks, due April 21 2027). She has IBS-D which is triggered by unfamiliar restaurant food/oils. Focus on:
+1. Foods and drinks that seem to help (nausea, energy, digestion)
+2. Foods or situations that trigger symptoms
+3. Time-of-day patterns (when nausea peaks, energy windows)
+4. Rest and sleep patterns
+5. Specific correlations (e.g. bone broth → felt good, skipping breakfast → nausea spike)
+
+Be warm, specific, and use her actual entries. 3-5 clear insights, each 2-3 sentences. No bullet symbols — clean paragraphs separated by line breaks. Start directly with insights, no preamble.`,
+          messages: [{ role: 'user', content: `Here are my pregnancy logs:\n\n${log}\n\nWhat patterns do you see? What's helping vs. triggering symptoms?` }]
+        })
+      });
+
+      const data = await res.json();
+      if (data.error) throw new Error(data.error.message);
+      const text = data.content?.filter(c => c.type === 'text').map(c => c.text).join('') || 'No insights returned.';
+      el.className = 'insights-text';
+      el.textContent = text;
+    } catch(err) {
+      el.className = 'insights-muted';
+      el.textContent = 'Could not load insights. Check your API key in Settings and try again.';
+    }
+
+    btn.disabled = false;
+    btn.textContent = 'Refresh patterns';
+  }
+
+  function exportData() {
+    const blob = new Blob([JSON.stringify(entries, null, 2)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'bloom-tracker-' + new Date().toISOString().slice(0,10) + '.json';
+    a.click();
+  }
+
+  function exportCSV() {
+    const header = 'timestamp,date,time,mood,tags,note';
+    const rows = entries.map(e => {
+      const d = new Date(e.timestamp);
+      const date = d.toLocaleDateString('en-US');
+      const time = d.toLocaleTimeString('en-US', { hour:'numeric', minute:'2-digit' });
+      const note = '"' + e.note.replace(/"/g, '""') + '"';
+      return [e.timestamp, date, time, e.mood||'', e.tags.join('|'), note].join(',');
+    });
+    const csv = [header, ...rows].join('\n');
+    const blob = new Blob([csv], { type: 'text/csv' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'bloom-tracker-' + new Date().toISOString().slice(0,10) + '.csv';
+    a.click();
+  }
+
+  function clearAllData() {
+    if (!confirm('Clear all entries? This cannot be undone.')) return;
+    entries = [];
+    saveAll();
+    renderHistory();
+    alert('All entries cleared.');
+  }
+
+  // Service Worker for offline support
+  if ('serviceWorker' in navigator) {
+    const swCode = `
+      const CACHE = 'bloom-v1';
+      self.addEventListener('install', e => {
+        self.skipWaiting();
+      });
+      self.addEventListener('fetch', e => {
+        if (e.request.url.includes('anthropic.com')) return;
+        e.respondWith(
+          caches.match(e.request).then(r => r || fetch(e.request).catch(() => r))
+        );
+      });
+    `;
+    const swBlob = new Blob([swCode], { type: 'text/javascript' });
+    const swURL = URL.createObjectURL(swBlob);
+    navigator.serviceWorker.register(swURL).catch(() => {});
+  }
+
+  loadAll();
+</script>
+</body>
+</html>
