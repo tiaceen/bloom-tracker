@@ -790,6 +790,24 @@
     setTimeout(() => { btn.textContent = 'Save entry'; }, 1500);
   }
 
+  function editEntry(id) {
+  const e = entries.find(e => e.id === id);
+  if (!e) return;
+  const d = new Date(e.timestamp);
+  document.getElementById('entry-date').value = d.toISOString().slice(0,10);
+  document.getElementById('entry-time').value = String(d.getHours()).padStart(2,'0') + ':' + String(d.getMinutes()).padStart(2,'0');
+  document.getElementById('entry-note').value = e.note;
+  document.querySelectorAll('#tab-log .tag').forEach(t => {
+    t.classList.toggle('active', e.tags.includes(t.dataset.tag));
+  });
+  document.querySelectorAll('#tab-log .mood-btn').forEach(b => {
+    b.classList.toggle('active', b.dataset.mood === e.mood);
+  });
+  entries = entries.filter(en => en.id !== id);
+  saveAll();
+  switchTab('log');
+  }
+  
   function deleteEntry(id) {
     if (!confirm('Delete this entry?')) return;
     entries = entries.filter(e => e.id !== id);
@@ -852,6 +870,7 @@
             <div class="entry-text">${mood}${e.note}</div>
             ${e.tags.length ? `<div class="entry-tags">${tagsHtml}</div>` : ''}
           </div>
+          <button class="entry-delete" onclick="editEntry(${e.id})" title="Edit">✎</button>
           <button class="entry-delete" onclick="deleteEntry(${e.id})" title="Delete">✕</button>
         </div>`;
     });
