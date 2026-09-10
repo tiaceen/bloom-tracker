@@ -855,7 +855,7 @@
     let html = '';
     let lastDay = null;
 
-    entries.forEach(e => {
+    [...entries].sort((a,b) => new Date(b.timestamp) - new Date(a.timestamp)).forEach(e => {
       const { dayLabel, time, dayKey } = formatDateTime(e.timestamp);
       if (dayKey !== lastDay) {
         html += `<div class="day-label">${dayLabel}</div>`;
