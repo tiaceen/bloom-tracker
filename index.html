@@ -10,8 +10,7 @@
   <meta name="theme-color" content="#0f0f0e" media="(prefers-color-scheme: dark)" />
   <title>Bloom — pregnancy tracker</title>
   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🦢</text></svg>">
-  
-  <!-- PWA manifest inline -->
+
   <script>
     const manifestData = {
       name: "Bloom — Pregnancy Tracker",
@@ -20,7 +19,7 @@
       display: "standalone",
       background_color: "#ffffff",
       theme_color: "#ffffff",
-      icons: [{ src: "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🌸</text></svg>", sizes: "any", type: "image/svg+xml" }]
+      icons: [{ src: "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🦢</text></svg>", sizes: "any", type: "image/svg+xml" }]
     };
     const blob = new Blob([JSON.stringify(manifestData)], { type: "application/json" });
     const manifestURL = URL.createObjectURL(blob);
@@ -64,15 +63,15 @@
         --text-secondary: #c3c2b7;
         --text-muted: #898781;
         --accent: #3987e5;
-        --accent-bg: #0c447c22;
+        --accent-bg: rgba(12,68,124,0.2);
         --accent-text: #85b7eb;
-        --success-bg: #27500a22;
+        --success-bg: rgba(39,80,10,0.2);
         --success-text: #97c459;
-        --warning-bg: #633806 22;
+        --warning-bg: rgba(99,56,6,0.2);
         --warning-text: #fac775;
-        --danger-bg: #791f1f22;
+        --danger-bg: rgba(121,31,31,0.2);
         --danger-text: #f09595;
-        --pro-bg: #3c348922;
+        --pro-bg: rgba(60,52,137,0.2);
         --pro-text: #afa9ec;
       }
     }
@@ -98,7 +97,6 @@
       background: var(--bg);
     }
 
-    /* Header */
     .header {
       padding: calc(16px + var(--safe-top)) 20px 0;
       background: var(--bg);
@@ -130,7 +128,6 @@
       font-weight: 500;
     }
 
-    /* Tabs */
     .tabs {
       display: flex;
       border-bottom: 0.5px solid var(--border);
@@ -156,7 +153,6 @@
       font-weight: 500;
     }
 
-    /* Main content */
     .content {
       flex: 1;
       overflow-y: auto;
@@ -164,7 +160,6 @@
       padding-bottom: calc(20px + var(--safe-bottom));
     }
 
-    /* Cards */
     .card {
       background: var(--surface);
       border: 0.5px solid var(--border);
@@ -182,7 +177,6 @@
       margin-bottom: 8px;
     }
 
-    /* Form elements */
     .form-row {
       display: flex;
       align-items: center;
@@ -210,9 +204,7 @@
     }
 
     input[type="date"]:focus,
-    input[type="time"]:focus {
-      border-color: var(--accent);
-    }
+    input[type="time"]:focus { border-color: var(--accent); }
 
     textarea {
       width: 100%;
@@ -232,11 +224,7 @@
     textarea:focus { border-color: var(--accent); }
     textarea::placeholder { color: var(--text-muted); }
 
-    /* Mood */
-    .mood-row {
-      display: flex;
-      gap: 6px;
-    }
+    .mood-row { display: flex; gap: 6px; }
 
     .mood-btn {
       flex: 1;
@@ -256,12 +244,7 @@
       background: var(--accent-bg);
     }
 
-    /* Tags */
-    .tag-grid {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 6px;
-    }
+    .tag-grid { display: flex; flex-wrap: wrap; gap: 6px; }
 
     .tag {
       font-size: 13px;
@@ -281,7 +264,6 @@
       color: var(--accent-text);
     }
 
-    /* Save button */
     .btn-save {
       width: 100%;
       padding: 12px;
@@ -306,14 +288,28 @@
       margin-bottom: 8px;
     }
 
-    /* Entries */
     .day-label {
       font-size: 12px;
       color: var(--text-muted);
       font-weight: 600;
-      padding: 4px 0 8px;
+      padding: 8px 4px;
       letter-spacing: 0.03em;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      cursor: pointer;
+      user-select: none;
     }
+
+    .day-label:hover { color: var(--text-secondary); }
+
+    .day-chevron {
+      font-size: 10px;
+      color: var(--text-muted);
+      transition: transform 0.15s;
+    }
+
+    .day-entries { margin-bottom: 4px; }
 
     .entry {
       background: var(--surface);
@@ -363,23 +359,28 @@
     .etag-good { background: var(--success-bg); color: var(--success-text); }
     .etag-energy { background: var(--accent-bg); color: var(--accent-text); }
     .etag-pain { background: var(--danger-bg); color: var(--danger-text); }
+    .etag-gas { background: var(--warning-bg); color: var(--warning-text); }
+    .etag-lightheaded { background: var(--pro-bg); color: var(--pro-text); }
+    .etag-hungry { background: var(--success-bg); color: var(--success-text); }
+    .etag-diarrhea { background: var(--danger-bg); color: var(--danger-text); }
 
-    .entry-delete {
-      font-size: 14px;
+    .entry-btn {
+      font-size: 13px;
       color: var(--text-muted);
       background: none;
       border: none;
       cursor: pointer;
-      padding: 0 0 0 4px;
+      padding: 0 2px;
       flex-shrink: 0;
-      opacity: 0.4;
+      opacity: 0.3;
       line-height: 1;
+      transition: opacity 0.15s;
     }
 
-    .entry:hover .entry-delete { opacity: 0.7; }
-    .entry-delete:hover { color: var(--danger-text); opacity: 1; }
+    .entry:hover .entry-btn { opacity: 0.7; }
+    .entry-btn:hover { opacity: 1 !important; }
+    .entry-btn.del:hover { color: var(--danger-text); }
 
-    /* Empty state */
     .empty {
       text-align: center;
       color: var(--text-muted);
@@ -389,7 +390,6 @@
 
     .empty-icon { font-size: 36px; margin-bottom: 12px; }
 
-    /* Insights */
     .insights-card {
       background: var(--surface);
       border: 0.5px solid var(--border);
@@ -403,9 +403,6 @@
       font-weight: 500;
       color: var(--text-secondary);
       margin-bottom: 10px;
-      display: flex;
-      align-items: center;
-      gap: 6px;
     }
 
     .insights-text {
@@ -445,7 +442,6 @@
       text-align: center;
     }
 
-    /* Stats row */
     .stats-row {
       display: grid;
       grid-template-columns: repeat(3, 1fr);
@@ -469,55 +465,8 @@
       margin-bottom: 4px;
     }
 
-    .stat-lbl {
-      font-size: 11px;
-      color: var(--text-muted);
-    }
+    .stat-lbl { font-size: 11px; color: var(--text-muted); }
 
-    /* API key note */
-    .api-note {
-      background: var(--warning-bg);
-      border: 0.5px solid var(--border);
-      border-radius: var(--radius);
-      padding: 12px 14px;
-      font-size: 13px;
-      color: var(--warning-text);
-      margin-bottom: 12px;
-      line-height: 1.5;
-    }
-
-    .api-note strong { font-weight: 600; }
-
-    .api-input-row {
-      display: flex;
-      gap: 8px;
-      margin-top: 8px;
-    }
-
-    .api-input-row input {
-      flex: 1;
-      padding: 7px 10px;
-      border: 0.5px solid var(--border-strong);
-      border-radius: var(--radius);
-      background: var(--surface);
-      color: var(--text);
-      font-size: 13px;
-      font-family: inherit;
-      outline: none;
-    }
-
-    .api-input-row button {
-      padding: 7px 14px;
-      background: var(--accent);
-      color: #fff;
-      border: none;
-      border-radius: var(--radius);
-      font-size: 13px;
-      font-family: inherit;
-      cursor: pointer;
-    }
-
-    /* Export */
     .btn-ghost {
       width: 100%;
       padding: 10px;
@@ -533,9 +482,7 @@
 
     .btn-ghost:hover { background: var(--surface2); }
 
-    @keyframes spin {
-      to { transform: rotate(360deg); }
-    }
+    @keyframes spin { to { transform: rotate(360deg); } }
 
     .spinner {
       display: inline-block;
@@ -553,7 +500,7 @@
 <div class="app">
   <div class="header">
     <div class="header-top">
-      <div class="app-name">🌸 Bloom</div>
+      <div class="app-name">🦢 Bloom</div>
       <div class="week-badge" id="week-badge">7w 2d</div>
     </div>
     <div class="tabs">
@@ -586,26 +533,26 @@
           <button class="mood-btn" data-mood="great" onclick="toggleMood(this)" title="Great">😊</button>
           <button class="mood-btn" data-mood="ok" onclick="toggleMood(this)" title="Ok">😐</button>
           <button class="mood-btn" data-mood="nauseous" onclick="toggleMood(this)" title="Nauseous">🤢</button>
-          <button class="mood-btn" data-mood="pain" onclick="toggleMood(this)" title="Pain">😣</button>
           <button class="mood-btn" data-mood="tired" onclick="toggleMood(this)" title="Tired">😴</button>
+          <button class="mood-btn" data-mood="pain" onclick="toggleMood(this)" title="Pain">😣</button>
         </div>
       </div>
 
       <div class="card">
         <div class="card-label">Tags</div>
         <div class="tag-grid">
-          <span class="tag" data-tag="good" onclick="toggleTag(this)">✨ felt good</span>
           <span class="tag" data-tag="food" onclick="toggleTag(this)">🍽 ate</span>
-          <span class="tag" data-tag="hungry" onclick="toggleTag(this)">🫙 hungry</span>
           <span class="tag" data-tag="drink" onclick="toggleTag(this)">💧 drank</span>
           <span class="tag" data-tag="nausea" onclick="toggleTag(this)">🤢 nausea</span>
-          <span class="tag" data-tag="lightheaded" onclick="toggleTag(this)">😵 lightheaded</span>
           <span class="tag" data-tag="bathroom" onclick="toggleTag(this)">🚽 bathroom</span>
+          <span class="tag" data-tag="diarrhea" onclick="toggleTag(this)">🚨 diarrhea</span>
+          <span class="tag" data-tag="gas" onclick="toggleTag(this)">💨 gas</span>
+          <span class="tag" data-tag="lightheaded" onclick="toggleTag(this)">😵 lightheaded</span>
+          <span class="tag" data-tag="hungry" onclick="toggleTag(this)">🫙 hungry</span>
           <span class="tag" data-tag="sleep" onclick="toggleTag(this)">😴 sleep</span>
+          <span class="tag" data-tag="good" onclick="toggleTag(this)">✨ felt good</span>
           <span class="tag" data-tag="energy" onclick="toggleTag(this)">⚡ energy</span>
           <span class="tag" data-tag="pain" onclick="toggleTag(this)">⚠️ cramp/pain</span>
-          <span class="tag" data-tag="gas" onclick="toggleTag(this)">💨 gas</span>
-          <span class="tag" data-tag="diarrhea" onclick="toggleTag(this)">🚨 diarrhea</span>
         </div>
       </div>
 
@@ -660,7 +607,7 @@
       </div>
 
       <div style="font-size:12px;color:var(--text-muted);text-align:center;padding:8px;">
-        Bloom v1.0 — your data stays on your device
+        Bloom v1.1 — your data stays on your device
       </div>
     </div>
 
@@ -681,36 +628,24 @@
       document.getElementById('api-key-input').value = apiKey;
       document.getElementById('key-status').textContent = 'Key saved.';
     }
-    const due = localStorage.getItem(DUE_DATE_KEY);
-    if (due) {
-      document.getElementById('settings-due').value = due;
-      updateWeekBadge(due);
-    } else {
-      // Default: April 21 2027 (from conversation)
-      const defaultDue = '2027-04-21';
-      document.getElementById('settings-due').value = defaultDue;
-      localStorage.setItem(DUE_DATE_KEY, defaultDue);
-      updateWeekBadge(defaultDue);
-    }
+    const due = localStorage.getItem(DUE_DATE_KEY) || '2027-04-21';
+    document.getElementById('settings-due').value = due;
+    localStorage.setItem(DUE_DATE_KEY, due);
+    updateWeekBadge(due);
     setDefaultDateTime();
   }
 
   function updateWeekBadge(dueDate) {
     try {
       const due = new Date(dueDate);
-      const today = new Date();
       const conception = new Date(due);
       conception.setDate(due.getDate() - 280);
-      const diffDays = Math.floor((today - conception) / 86400000);
-      const weeks = Math.floor(diffDays / 7);
-      const days = diffDays % 7;
-      document.getElementById('week-badge').textContent = weeks + 'w ' + days + 'd';
+      const diffDays = Math.floor((new Date() - conception) / 86400000);
+      document.getElementById('week-badge').textContent = Math.floor(diffDays/7) + 'w ' + (diffDays%7) + 'd';
     } catch(e) {}
   }
 
-  function saveAll() {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(entries));
-  }
+  function saveAll() { localStorage.setItem(STORAGE_KEY, JSON.stringify(entries)); }
 
   function saveDueDate() {
     const val = document.getElementById('settings-due').value;
@@ -732,8 +667,7 @@
       document.getElementById('tab-' + t).style.display = t === name ? 'block' : 'none';
     });
     document.querySelectorAll('.tab').forEach((btn, i) => {
-      const tabs = ['log','history','insights','settings'];
-      btn.classList.toggle('active', tabs[i] === name);
+      btn.classList.toggle('active', ['log','history','insights','settings'][i] === name);
     });
     if (name === 'history') renderHistory();
   }
@@ -741,9 +675,7 @@
   function setDefaultDateTime() {
     const now = new Date();
     document.getElementById('entry-date').value = now.toISOString().slice(0,10);
-    const hh = String(now.getHours()).padStart(2,'0');
-    const mm = String(now.getMinutes()).padStart(2,'0');
-    document.getElementById('entry-time').value = hh + ':' + mm;
+    document.getElementById('entry-time').value = String(now.getHours()).padStart(2,'0') + ':' + String(now.getMinutes()).padStart(2,'0');
   }
 
   function toggleMood(btn) {
@@ -779,36 +711,16 @@
     entries.unshift({ id: Date.now(), timestamp, note, tags, mood });
     saveAll();
 
-    // Reset form
     document.getElementById('entry-note').value = '';
     document.querySelectorAll('#tab-log .tag.active').forEach(t => t.classList.remove('active'));
     document.querySelectorAll('#tab-log .mood-btn.active').forEach(b => b.classList.remove('active'));
     setDefaultDateTime();
 
-    // Brief flash confirmation
     const btn = document.querySelector('.btn-save');
     btn.textContent = 'Saved ✓';
     setTimeout(() => { btn.textContent = 'Save entry'; }, 1500);
   }
 
-  function editEntry(id) {
-  const e = entries.find(e => e.id === id);
-  if (!e) return;
-  const d = new Date(e.timestamp);
-  document.getElementById('entry-date').value = d.toISOString().slice(0,10);
-  document.getElementById('entry-time').value = String(d.getHours()).padStart(2,'0') + ':' + String(d.getMinutes()).padStart(2,'0');
-  document.getElementById('entry-note').value = e.note;
-  document.querySelectorAll('#tab-log .tag').forEach(t => {
-    t.classList.toggle('active', e.tags.includes(t.dataset.tag));
-  });
-  document.querySelectorAll('#tab-log .mood-btn').forEach(b => {
-    b.classList.toggle('active', b.dataset.mood === e.mood);
-  });
-  entries = entries.filter(en => en.id !== id);
-  saveAll();
-  switchTab('log');
-  }
-  
   function deleteEntry(id) {
     if (!confirm('Delete this entry?')) return;
     entries = entries.filter(e => e.id !== id);
@@ -816,10 +728,28 @@
     renderHistory();
   }
 
+  function editEntry(id) {
+    const e = entries.find(e => e.id === id);
+    if (!e) return;
+    const d = new Date(e.timestamp);
+    document.getElementById('entry-date').value = d.toISOString().slice(0,10);
+    document.getElementById('entry-time').value = String(d.getHours()).padStart(2,'0') + ':' + String(d.getMinutes()).padStart(2,'0');
+    document.getElementById('entry-note').value = e.note;
+    document.querySelectorAll('#tab-log .tag').forEach(t => {
+      t.classList.toggle('active', e.tags.includes(t.dataset.tag));
+    });
+    document.querySelectorAll('#tab-log .mood-btn').forEach(b => {
+      b.classList.toggle('active', b.dataset.mood === e.mood);
+    });
+    entries = entries.filter(en => en.id !== id);
+    saveAll();
+    switchTab('log');
+  }
+
   function formatDateTime(iso) {
     const d = new Date(iso);
     const today = new Date(); today.setHours(0,0,0,0);
-    const yesterday = new Date(today); yesterday.setDate(today.getDate() - 1);
+    const yesterday = new Date(today); yesterday.setDate(today.getDate()-1);
     const entryDay = new Date(d); entryDay.setHours(0,0,0,0);
     let dayLabel;
     if (entryDay.getTime() === today.getTime()) dayLabel = 'Today';
@@ -830,16 +760,22 @@
   }
 
   const moodEmojis = { great:'😊', ok:'😐', nauseous:'🤢', tired:'😴', pain:'😣' };
-  const tagClasses = { food:'etag-food', drink:'etag-drink', nausea:'etag-nausea', bathroom:'etag-bathroom', sleep:'etag-sleep', good:'etag-good', energy:'etag-energy', pain:'etag-pain' };
+  const tagClasses = { food:'etag-food', drink:'etag-drink', nausea:'etag-nausea', bathroom:'etag-bathroom', sleep:'etag-sleep', good:'etag-good', energy:'etag-energy', pain:'etag-pain', gas:'etag-gas', lightheaded:'etag-lightheaded', hungry:'etag-hungry', diarrhea:'etag-diarrhea' };
+
+  function toggleDay(dayKey) {
+    const content = document.getElementById('day-' + dayKey);
+    const chevron = document.getElementById('chev-' + dayKey);
+    const isOpen = content.style.display !== 'none';
+    content.style.display = isOpen ? 'none' : 'block';
+    chevron.textContent = isOpen ? '▸' : '▾';
+  }
 
   function renderHistory() {
     const list = document.getElementById('entries-list');
     const statsRow = document.getElementById('stats-row');
 
-    // Stats
     const today = new Date(); today.setHours(0,0,0,0);
     const todayEntries = entries.filter(e => new Date(new Date(e.timestamp).setHours(0,0,0,0)).getTime() === today.getTime());
-    const goodCount = entries.filter(e => e.mood === 'great').length;
     const nauseaCount = entries.filter(e => e.tags.includes('nausea')).length;
 
     statsRow.innerHTML = `
@@ -853,13 +789,20 @@
       return;
     }
 
+    const sorted = [...entries].sort((a,b) => new Date(b.timestamp) - new Date(a.timestamp));
     let html = '';
     let lastDay = null;
 
-    [...entries].sort((a,b) => new Date(b.timestamp) - new Date(a.timestamp)).forEach(e => {
+    sorted.forEach(e => {
       const { dayLabel, time, dayKey } = formatDateTime(e.timestamp);
       if (dayKey !== lastDay) {
-        html += `<div class="day-label">${dayLabel}</div>`;
+        if (lastDay !== null) html += '</div>';
+        const isToday = dayLabel === 'Today';
+        html += `<div class="day-label" onclick="toggleDay(${dayKey})">
+          <span>${dayLabel}</span>
+          <span class="day-chevron" id="chev-${dayKey}">${isToday ? '▾' : '▸'}</span>
+        </div>
+        <div class="day-entries" id="day-${dayKey}" style="display:${isToday ? 'block' : 'none'};">`;
         lastDay = dayKey;
       }
       const tagsHtml = e.tags.map(t => `<span class="etag ${tagClasses[t] || ''}">${t}</span>`).join('');
@@ -871,18 +814,19 @@
             <div class="entry-text">${mood}${e.note}</div>
             ${e.tags.length ? `<div class="entry-tags">${tagsHtml}</div>` : ''}
           </div>
-          <button class="entry-delete" onclick="editEntry(${e.id})" title="Edit">✎</button>
-          <button class="entry-delete" onclick="deleteEntry(${e.id})" title="Delete">✕</button>
+          <button class="entry-btn" onclick="editEntry(${e.id})" title="Edit">✎</button>
+          <button class="entry-btn del" onclick="deleteEntry(${e.id})" title="Delete">✕</button>
         </div>`;
     });
 
+    if (lastDay !== null) html += '</div>';
     list.innerHTML = html;
   }
 
   async function getInsights() {
     if (entries.length < 3) {
       document.getElementById('insights-content').className = 'insights-muted';
-      document.getElementById('insights-content').textContent = 'Log at least 3 entries first so there\'s something to analyze.';
+      document.getElementById('insights-content').textContent = "Log at least 3 entries first so there's something to analyze.";
       return;
     }
 
@@ -922,7 +866,7 @@
 2. Foods or situations that trigger symptoms
 3. Time-of-day patterns (when nausea peaks, energy windows)
 4. Rest and sleep patterns
-5. Specific correlations (e.g. bone broth → felt good, skipping breakfast → nausea spike)
+5. Specific correlations (e.g. bone broth felt good, gas before diarrhea pattern)
 
 Be warm, specific, and use her actual entries. 3-5 clear insights, each 2-3 sentences. No bullet symbols — clean paragraphs separated by line breaks. Start directly with insights, no preamble.`,
           messages: [{ role: 'user', content: `Here are my pregnancy logs:\n\n${log}\n\nWhat patterns do you see? What's helping vs. triggering symptoms?` }]
@@ -956,13 +900,10 @@ Be warm, specific, and use her actual entries. 3-5 clear insights, each 2-3 sent
     const header = 'timestamp,date,time,mood,tags,note';
     const rows = entries.map(e => {
       const d = new Date(e.timestamp);
-      const date = d.toLocaleDateString('en-US');
-      const time = d.toLocaleTimeString('en-US', { hour:'numeric', minute:'2-digit' });
       const note = '"' + e.note.replace(/"/g, '""') + '"';
-      return [e.timestamp, date, time, e.mood||'', e.tags.join('|'), note].join(',');
+      return [e.timestamp, d.toLocaleDateString('en-US'), d.toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit'}), e.mood||'', e.tags.join('|'), note].join(',');
     });
-    const csv = [header, ...rows].join('\n');
-    const blob = new Blob([csv], { type: 'text/csv' });
+    const blob = new Blob([[header,...rows].join('\n')], { type: 'text/csv' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
@@ -978,23 +919,16 @@ Be warm, specific, and use her actual entries. 3-5 clear insights, each 2-3 sent
     alert('All entries cleared.');
   }
 
-  // Service Worker for offline support
   if ('serviceWorker' in navigator) {
     const swCode = `
-      const CACHE = 'bloom-v1';
-      self.addEventListener('install', e => {
-        self.skipWaiting();
-      });
+      self.addEventListener('install', e => { self.skipWaiting(); });
       self.addEventListener('fetch', e => {
         if (e.request.url.includes('anthropic.com')) return;
-        e.respondWith(
-          caches.match(e.request).then(r => r || fetch(e.request).catch(() => r))
-        );
+        e.respondWith(caches.match(e.request).then(r => r || fetch(e.request).catch(() => r)));
       });
     `;
     const swBlob = new Blob([swCode], { type: 'text/javascript' });
-    const swURL = URL.createObjectURL(swBlob);
-    navigator.serviceWorker.register(swURL).catch(() => {});
+    navigator.serviceWorker.register(URL.createObjectURL(swBlob)).catch(() => {});
   }
 
   loadAll();
